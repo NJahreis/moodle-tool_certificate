@@ -28,6 +28,7 @@ use core_reportbuilder\local\helpers\format;
 use tool_certificate\reportbuilder\local\filters\status;
 use tool_certificate\reportbuilder\local\formatters\certificate as formatter;
 use tool_certificate\permission;
+use core_reportbuilder\local\helpers\custom_fields;
 
 /**
  * Certificate issue entity class implementation
@@ -38,6 +39,8 @@ use tool_certificate\permission;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class issue extends base {
+    /** @var custom_fields */
+    protected $customfields;
 
     /**
      * Database tables that this entity uses and their default aliases
@@ -153,6 +156,8 @@ class issue extends base {
             ->add_field("{$certificateissuealias}.expires")
             ->add_callback([formatter::class, 'certificate_issued_status']);
 
+        $columns = array_merge($columns, $this->get_custom_fields()->get_columns());
+
         return $columns;
     }
 
@@ -207,6 +212,23 @@ class issue extends base {
         ))
             ->add_joins($this->get_joins());
 
+        $filters = array_merge($filters, $this->get_custom_fields()->get_filters());
+
         return $filters;
+    }
+
+    /**
+     * Get the custom fields helper
+     *
+     * @return custom_fields
+     */
+    protected function get_custom_fields(): custom_fields {
+        if ($this->customfields === null) {
+            $tablealias = $this->get_table_alias('tool_certificate_issues');
+            $this->customfields = new custom_fields("{$tablealias}.id", $this->get_entity_name(),
+                'tool_certificate', 'issue', 0);
+            $this->customfields->add_joins($this->get_joins());
+        }
+        return $this->customfields;
     }
 }
