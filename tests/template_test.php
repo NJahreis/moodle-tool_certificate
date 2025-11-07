@@ -153,12 +153,20 @@ final class template_test extends advanced_testcase {
      * Test duplicate
      */
     public function test_duplicate(): void {
+        global $DB;
         $certname = 'Certificate 1';
         $certificate1 = $this->get_generator()->create_template((object)['name' => $certname]);
         $certificate2 = $certificate1->duplicate();
         $expectedname = $certname . ' (copy)';
         $this->assertEquals($expectedname, $certificate2->get_name());
         $this->assertFalse($certificate1->get_id() == $certificate2->get_id());
+        $this->assertEquals(
+            0,
+            $DB->get_field('tool_certificate_templates',
+            'issuecount',
+            ['id' => $certificate2->get_id()],
+            MUST_EXIST)
+        );
     }
 
     /**

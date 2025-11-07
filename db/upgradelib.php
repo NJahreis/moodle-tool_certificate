@@ -235,3 +235,54 @@ function tool_certificate_upgrade_add_permission_condition_to_reports() {
         $reportobj->set_condition_values($values);
     }
 }
+
+/**
+ * Upgrade script setting the number of issues of each template at the time of the upgrade
+ */
+function tool_certificate_upgrade_add_template_issue_counter() {
+    global $DB;
+
+    // Get all templates.
+    $records = $DB->get_records('tool_certificate_templates');
+
+    if (!$records) {
+        return;
+    }
+
+    // Set current issue count.
+    foreach ($records as $record) {
+        $issuecount = $DB->count_records('tool_certificate_issues', ['templateid' => $record->id]);
+        $DB->set_field('tool_certificate_templates', 'issues', $issuecount, ['id' => $record->id]);
+    }
+}
+
+/**
+ * Upgrade script adding the issuing number to each issue at the time of the upgrade.
+ */
+function tool_certificate_upgrade_add_issue_issuing_numer() {
+    global $DB;
+
+    // First get all template ids. Then get all issues for each template id and iterate over them.
+    $templates = $DB->records('tool_certificate_templates', 'id');
+
+    if (!$templates) {
+         return;
+    }
+
+    foreach ($templates as $template) {
+        $issues = $DB->get_records_select(
+            'tool_certificate_issues',
+            'templateid = :templateid',
+            ['templateid' => $template->id],
+            'id, data'
+        );
+        $issuenumber = 1;
+        foreach ($issues as $issue) {
+            $data = json_decode($issue->data);
+            $data['issuingnumber'] = $issuenumber;
+            $data = json_encode($data);
+            $DB->set_field('tool_certificate_issues', 'data', $data, ['id' => $issue->id]);
+            ++$issuenumber;
+        }
+    }
+}

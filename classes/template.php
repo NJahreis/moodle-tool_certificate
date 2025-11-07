@@ -322,6 +322,9 @@ class template {
         $data->contextid = $context ? $context->id : $this->get_context()->id;
         $newtemplate = self::create($data);
 
+        // Reset issues to zero for the duplicate.
+        $newtemplate->persistent->set('issuecount', 0);
+
         // Copy the data to the new template.
         foreach ($this->get_pages() as $page) {
             $page->duplicate($newtemplate);
@@ -650,6 +653,7 @@ class template {
         $template = new \stdClass();
         $template->name = $formdata->name;
         $template->shared = $formdata->shared ?? 0;
+        $template->issuecount =  0;
         if (!isset($formdata->contextid)) {
             debugging('Context is missing', DEBUG_DEVELOPER);
             $template->contextid = \context_system::instance()->id;
@@ -713,10 +717,18 @@ class template {
 
         // Store user fullname.
         $data['userfullname'] = fullname($DB->get_record('user', ['id' => $userid]));
+
+        // Store issuing number of this template in the issue instance.
+        $issuenumber = $this->persistent->get('issuecount') + 1;
+        $data['issuingnumber'] = $issuenumber;
         $issue->data = json_encode($data);
 
         // Insert the record into the database.
         $issue->id = $DB->insert_record('tool_certificate_issues', $issue);
+
+        // Update issuecount of this template.
+        $this->persistent->set('issuecount', $issuenumber);
+
         if ($lock) {
             $lock->release();
         }

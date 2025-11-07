@@ -247,5 +247,21 @@ function xmldb_tool_certificate_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023071300, 'tool', 'certificate');
     }
 
+    if ($oldversion < 2025110700) {
+
+        // Define field issue count to be added to tool_certificate_templates.
+        $table = new xmldb_table('tool_certificate_templates');
+        $field = new xmldb_field('issuecount', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field issuecount.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        tool_certificate_upgrade_add_template_issue_counter();
+        tool_certificate_upgrade_add_issue_issuing_numer();
+        upgrade_plugin_savepoint(true, 2025110700, 'tool', 'certificate');
+    }
+
     return true;
 }

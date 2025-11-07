@@ -72,7 +72,17 @@ class certificate {
     }
 
     /**
-     * Returns the total number of issues for a given template.
+     * Returns the total number of times this template was issued including revoked issues.
+     * @param int $templateid
+     * @return int the number of issues
+     */
+    public static function total_issues_for_template($templateid) {
+        global $DB;
+        return $DB->get_field('tool_certificate_template', 'issuecount', ['templateid' => $templateid], MUST_EXIST);
+    }
+
+    /**
+     * Returns the total number of issues for a given template excluding revoked issues.
      *
      * @param int $templateid
      * @return int the number of issues

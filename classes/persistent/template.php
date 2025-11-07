@@ -55,6 +55,9 @@ class template extends persistent {
             'shared' => [
                 'type' => PARAM_BOOL,
             ],
+            'issuecount' => [
+                'type' => PARAM_INT,
+            ],
         ];
     }
 
