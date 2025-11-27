@@ -26,10 +26,11 @@ jobs:
             moodle-branch: 'MOODLE_501_STABLE'
 
     steps:
-      - name: Check out repository code
+      - name: Check out repository code and submodule coide
         uses: actions/checkout@v4
         with:
           path: plugin
+          submodules: recursive
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
