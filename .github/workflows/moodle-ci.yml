@@ -57,10 +57,11 @@ jobs:
             extensions: xmlrpc-beta
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v3
+      - name: Check out repository code and submodule code
+        uses: actions/checkout@v4
         with:
           path: plugin
+          submodules: recursive
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
