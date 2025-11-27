@@ -1,0 +1,3 @@
+[submodule "element/fieldfrommoddata"]
+	path = element/fieldfrommoddata
+	url = https://github.com/NJahreis/certificateelement_fieldfrommoddata.git
